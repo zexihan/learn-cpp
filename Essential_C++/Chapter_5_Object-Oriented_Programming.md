@@ -113,38 +113,135 @@ protected:
 
 每个虚拟函数，要么得有其定义，要么将虚拟函数赋值为0，可设为纯虚拟函数（pure virtual function）.
 
-## 5.5 定义一个派生类
+## 5.5 定义一个派生类（Derived Class）
+
+派生类由两部分组成：一是基类所构成的子对象（subobject），由基类的non-static data members组成，二是派生类的部分（由派生类的non-static data members组成）。
 
 ```cpp
+class Fibonacci : public num_sequence {
+public:
+    Fibonacci(int len = 1, int beg_pos = 1)
+        : _length(len), _beg_pos(beg_pos) { }
+    virtual int elem(int pos) const;
+    virtual const char* what_am_i() const { return "Fibonacci"; }
+    virtual ostream& print(ostream &os = cout) const;
+    int length() const { return _length; }
+    int beg_pos() const { return _beg_pos; }
 
+protected:
+    virtual void gen_elems(int pos) const;
+    int _length;
+    int _beg_pos;
+    static vector<int> _elems;
+}
 ```
 
 ## 5.6 运用继承体系（Using an Inheritance Hierarchy）
 
 ```cpp
+// base class num_sequence
+ostream& operator<< (ostream &os, const num_sequence &ns)
+{
+    return ns.print(os);
+}
+```
 
+```cpp
+int main()
+{
+    Fibonacci fib(8);
+    Pell pell(6, 4);
+    Lucas lucas(10, 7);
+    Triangular trian(12);
+    Square square(6, 6);
+    Pentagonal penta(8);
+    cout << "fib: " << fib << '\n'
+         << "pell: " << pell << '\n'
+         << "lucas: " << lucas << '\n'
+         << "trian: " << trian << '\n'
+         << "square: " << square << '\n'
+         << "penta: " << penta << endl;
+};
 ```
 
 ## 5.7 基类应该多么抽象
 
 ```cpp
+// another design of the base class num_sequence
+class num_sequence {
+public:
+    virtual ~num_sequence() { }
+    virtual const char* what_am_i() const = 0;
+    int elem(int pos) const;
+    ostream& print(ostream &os = cout) const;
+    int length() const { return _length; }
+    int beg_pos() const { return _beg_pos; }
+    static int max_elems() { return 64; }
 
+protected:
+    virtual void gen_elems(int pos) const = 0;
+    bool check_integrity(int pos, int size) const;
+
+    num_sequence(int len, int bp, vector<int> &re)
+        : _length(len), _beg_pos(bp), _relems(re) { }
+    
+    int _length;
+    int _beg_pos;
+    vector<int> & _relems;
+}
+
+class Fibonacci : public num_sequence {
+public:
+    Fibonacci(int len = 1, int beg_pos = 1);
+    virtual const char* what_am_i() const
+        { return "Fibonacci"; }
+    
+protected:
+    virtual void gen_elems(int pos) const;
+    static vector<int> _elems;
+};
 ```
 
 ## 5.8 初始化、析构、复制（Initialization, Destruction, and Copy）
 
-```cpp
+较好的初始化设计方式是，为基类提供constructor，并利用这个constructor处理基类所声明的所有data members的初始化操作。而派生类之constructor，不仅必须为派生类之data members进行初始化操作，还需为其基类之data members提供适当的值。基类num_sequence要求我们明确指定调用哪一个constructor。
 
+```cpp
+inline Fibonacci::Fibonacci(int len, int beg_pos)
+    : num_sequence(len, beg_pos, _elems)
+    { }
+```
+
+另一个做法是，为num_sequence提供default constructor。这样如果派生类的constructor未能明白指出调用基类的哪一个constructor，编译器便会自动调用基类的default constructor。
+
+```cpp
+num_sequence::num_sequence(int len=1, int bp=1, vector<int> *pe=0)
+    : _length(len), _beg_pos(bp), _pelems(pe) { }
+```
+
+```cpp
+Fibonacci fib1(12);
+Fibonacci fib2 = fib1;
+
+// copy constructor
+Fibonacci::Fibonacci(const Fibonacci &rhs)
+    : num_sequence(rhs) { }
+
+// copy assignment operator
+Fibonacci& Fibonacci::operator=(const Fibonacci &rhs)
+{
+    if (this != &rhs)
+        // 明确调用基类的copy assignment operator
+        num_sequence::operator = (rhs);
+    
+    return *this;
+}
 ```
 
 ## 5.9 在派生类中定义一个虚拟函数
 
-```cpp
-
-```
+skip
 
 ## 5.10 执行期的型别鉴定机制（Run-Time Type Identification）
 
-```cpp
-
-```
+skip
