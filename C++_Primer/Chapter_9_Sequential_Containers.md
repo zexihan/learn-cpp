@@ -221,4 +221,45 @@ vector<Sales_data> storeA, storeB;
 if (storeA < storeB) // error: Sales_data has no less-than operator
 ```
 
-## Sequential Container Operations
+## 9.3 Sequential Container Operations
+
+### Adding Elements to a Sequential Container
+
+```cpp
+// Operations That Add Elements to a Sequential Container
+c.push_back(t) // Creates an element with value t or constructed from args at the end of c. Returns void.
+c.emplace_back(args)
+c.push_front(t) // Creates an element with value t or constructed from args on the front of c. Returns void.
+c.emplace_front(args)
+c.insert(p, t) // Creates an element with value t or constructed from args before the element denoted by iterator p. Returns an iterator referring to the element that was added.
+c.emplace(p, args)
+c.insert(p, n, t) // Inserts n elements with value t before the element denoted by iterator p. Returns an iterator to the first element inserted; if n is zero, returns p.
+c.insert(p, b, e) // Inserts the elements from the range denoted by iterators b and e before the element denoted by iterator p. b and e may not refer to elements in c. Returns an iterator to the first element inserted; if the range is empty, returns p.
+c.insert(p, i) // i1 is a braced list of element values. Inserts the given values before the element denoted by the iterator p. Returns an iterator to the first inserted element; if the list is empty returns p.
+```
+
+```cpp
+// Using push_back
+// read from standard input, putting each word onto the end of container
+string word;
+while (cin >> word)
+    container.push_back(word);
+
+void pluralize(size_t cnt, string &word)
+{
+    if (cnt > 1)
+        word.push_back('s'); // same as word += 's'
+}
+
+// Using push_front
+list<int> ilist;
+// add elements to the start of ilist
+for (size_t ix = 0; ix != 4; ++ix)
+    ilist.push_front(ix);
+```
+
+## 9.4 How a vector Grows
+
+## 9.5 Additional string Operations
+
+## 9.6 Container Adaptors
