@@ -256,6 +256,130 @@ list<int> ilist;
 // add elements to the start of ilist
 for (size_t ix = 0; ix != 4; ++ix)
     ilist.push_front(ix);
+
+
+// Adding Elements at a Specified Point in the Container
+slist.insert(iter, "Hello!"); // insert "Hello!" just before iter
+
+vector<string> svec;
+list<string> slist;
+// equivalent to calling slist.pushfront("Hello!");
+slist.insert(slist.begin(), "Hello!");
+// no push_front on vector but we can insert before begin()
+// warning: inserting anywhere but at the end of a vector might be slow
+svec.insert(svec.begin(), "Hello!");
+
+
+// Inserting a Range of Elements
+svec.insert(svec.end(), 10, "Anna");
+
+vector<string> v = {"quasi", "simba", "frollo", "scar"};
+// insert the last two elements of v at the beginning of list
+slist.insert(slist.begin(), v.end() - 2, v.end());
+slist.insert(slist.end(), {"these", "words", "will", "go", "at", "the", "end"});
+// run-time error: iterators denoting the range to copy from
+// must not refer to the same container as the one we are changing
+slist.insert(slist.begin(), slist.begin(), slist.end());
+
+// Under the new standard, the versions of insert that take a count or a range return an iterator to the first element that was inserted.
+// Using the Return from insert
+list<string> lst;
+auto iter = lst.begin();
+while (cin >> word)
+    iter = lst.insert(iter, word); // same as calling push_front
+
+
+// Using the Emplace Operations
+// assuming c holds Sales_data elements
+// construct a Sales_data object at the end of c
+// uses the three-argument Sales_data constructor
+c.emplace_back("978-0590353403", 25, 15.99);
+// error: there is no version of push_back that takes three arguments
+c.push_back("978-0590353403", 25, 15.99);
+// ok: we create a tempoary Sales_data object to pass to push_back
+c.push_back(Sales_data("978-0590353403", 25, 15.99));
+
+// iter refers to an element in c, which holds Sales_data elements
+c.emplace_back(); // uses the Sales_data default constructor
+c.emplace(iter, "999-999999999"); // uses Sales_data(string)
+// uses the Sales_data constructor that takes an ISBN, a count, and a price
+c.emplace_front("978-0590353403", 25, 15.99);
+```
+
+### Accessing Elements
+
+```cpp
+// Operations to Access Elements in a Sequential Container
+// at and subscript operator valid only for string, vector, deque, and array. back not valid for forward_list.
+c.back() // Returns a reference to the last element in c. Undefined if c is empty.
+c.front() // Returns a reference to the first element in c. Undefined if c is empty.
+c[n] // Returns a reference to the element indexed by the unsigned integral value n. Undefined if n >= c.size().
+c.at(n) // Returns a reference to the element indexed by n. If the index is out of range, throws an out_of_range exception.
+```
+
+```cpp
+// check that there are elements before dereferencing an iterator or calling front or back
+if (!c.empty()) {
+    // val and val2 are copies of the value of the first element in c
+    auto val = *c.begin(), val2 = c.front();
+    // val3 and val4 are copies of the last element in c
+    auto last = c.end();
+    auto val3 = *(--last); // can't decrement forward_list iterators
+    auto val4 = c.back(); // not supported by forward_list
+}
+
+
+// The Access Members Return References
+if (!c.empty()) {
+    c.front() = 42; // assigns 42 to the first element in c
+    auto &v = c.back(); // get a reference to the last element
+    v = 1024; // changes the element in c
+    auto v2 = c.back(); // v2 is not a reference; it's a copy of c.back()
+    v2 = 0; // no change to the element in c
+}
+
+
+// Subscripting and Safe Random Access
+vector<string> svec; // empty vector
+cout << svec[0]; // run-time error: there are no elements in svec!
+cout << svec.at[0]; // throws an out_of_range exception
+```
+
+### Erasing Elements
+
+```cpp
+// erase Operations on Sequential Containers
+c.pop_back() // Removes last element in c. Undefined if c is empty. Returns void.
+c.pop_front() // Removes first element in c. Undefined if c is empty. Returns void.
+c.erase(p) // Removes the element denoted by the iterator p and returns an iterator to the element after the one deleted or the off-the-end iterator if p denotes the last element. Undefined if p is the off-the-end iterator.
+c.erase(b, e) // Removes the range of elements denoted by the iterators b and e. Returns an iterator to the element after the last one that was deleted, or an off-the-end iterator if e is itself an off-the-end iterator.
+c.clear() // Removes all the elements in c. Returns void.
+
+
+// The pop_front and pop_back Members
+while (!ilist.empty()) {
+    process(ilist.front()); // do something with the current top of ilist
+    ilist.pop_front(); // done; remove the first element
+}
+
+
+// Removing an Element from within the Container
+list<int> lst = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+auto it = lst.begin();
+while (it != lst.end())
+    if (*it % 2) // if the element is odd
+        it = lst.erase(it); // erase this element
+    else
+        ++it;
+
+
+// Removing Multiple Elements
+// delete the range of elements between two iterators
+// returns an iterator to the element just after the last removed element
+elem1 = slist.erase(elem1, elem2); // after the call elem1 == elem2
+
+slist.clear(); // delete all the elements within the container
+slist.erase(slist.begin(), slist.end()); // equivalent
 ```
 
 ## 9.4 How a vector Grows
