@@ -384,6 +384,291 @@ slist.erase(slist.begin(), slist.end()); // equivalent
 
 ## 9.4 How a vector Grows
 
+To avoid these costs, library implementors use allocation strategies that reduce the number of times the container is reallocated. When they have to get new memory, vector and string implementations typically allocate capacity beyond what is immediately needed. The container holds this storage in reserve and uses it to allocate new elements as they are added. Thus, there is no need to reallocate the container
+for each new element.
+
+```cpp
+// Members to Manage Capacity
+// Container Size Management
+c.shrink_to_fit() // Request to reduce capacity() to equal size().
+c.capacity() // Number of elements c can have before reallocation is necessary.
+c.reserve(n) // Allocate space for at least n elements.
+```
+
+```cpp
+// capacity and size
+vector<int> ivec;
+// size should be zero; capacity is implementation defined
+cout << "ivec: size: " << ivec.size()
+     << " capacity: " << ivec.capacity() << endl;
+// give ivec 24 elements
+for (vector<int>::size_type ix = 0; ix != 24; ++ix)
+    ivec.push_back(ix);
+
+// size should be 24; capacity will be >= 24 and is implementation defined
+cout << "ivec: size: " << ivec.size()
+     << " capacity: " << ivec.capacity() << endl;
+
+
+ivec.reserve(50); // sets capacity to at least 50; might be more
+// size should be 24; capacity will be >= 50 and is implementation defined
+cout << "ivec: size: " << ivec.size()
+     << " capacity: " << ivec.capacity() << endl;
+
+// add elements to use up the excess capacity
+while (ivec.size() != ivec.capacity())
+ivec.push_back(0);
+// capacity should be unchanged and size and capacity are now equal
+cout << "ivec: size: " << ivec.size()
+     << " capacity: " << ivec.capacity() << endl;
+
+ivec.push_back(42); // add one more element
+// size should be 51; capacity will be >= 51 and is implementation defined
+cout << "ivec: size: " << ivec.size()
+     << " capacity: " << ivec.capacity() << endl;
+
+ivec.shrink_to_fit(); // ask for the memory to be returned
+// size should be unchanged; capacity is implementation defined
+cout << "ivec: size: " << ivec.size()
+     << " capacity: " << ivec.capacity() << endl;
+```
+
 ## 9.5 Additional string Operations
 
+### Other Ways to Construct strings
+
+```cpp
+// Additional Ways to Construct strings
+string s(cp, n); // s is a copy of the first n characters in the array to which cp points. That array must have at least n characters.
+string s(s2, pos2); // s is a copy of the characters in the string s2 starting at the index pos2. Undefined if pos2 > s2.size().
+string s(s2, pos2, len2); // s is a copy of len2 characters from s2 starting at the index pos2. Undefined if pos2 > s2.size().  Regardless of the value of len2, copies at most s2.size() - pos2 characters.
+
+
+const char *cp = "Hello World!!!"; // null-terminated array
+char noNull[] = {'H', 'i'}; // not null terminated
+string s1(cp); // copy up to the null in cp; s1 == "Hello World!!!"
+string s2(noNull,2); // copy two characters from no_null; s2 == "Hi"
+string s3(noNull); // undefined: noNull not null terminated
+string s4(cp + 6, 5);// copy 5 characters starting at cp[6]; s4 == "World"
+string s5(s1, 6, 5); // copy 5 characters starting at s1[6]; s5 == "World"
+string s6(s1, 6); // copy from s1 [6] to end of s1; s6 == "World!!!"
+string s7(s1,6,20); // ok, copies only to end of s1; s7 == "World!!!"
+string s8(s1, 16); // throws an out_of_range exception
+
+
+// The substr Operation
+string s("hello world");
+string s2 = s.substr(0, 5); // s2 = hello
+string s3 = s.substr(6); // s3 = world
+string s4 = s.substr(6, 11); // s4 = world
+string s5 = s.substr(12); // throws an out_of_range exception
+```
+
+### Other Ways to Change a string
+
+```cpp
+s.insert(s.size(), 5, '!'); // insert five exclamation points at the end of s
+s.erase(s.size() - 5, 5); // erase the last five characters from s
+
+const char *cp = "Stately, plump Buck";
+s.assign(cp, 7); // s == "Stately"
+s.insert(s.size(), cp + 7); // s == "Stately, plump Buck"
+
+string s = "some string", s2 = "some other string";
+s.insert(0, s2); // insert a copy of s2 before position 0 in s
+// insert s2.size() characters from s2 starting at s2[0] before s[0]
+s.insert(0, s2, 0, s2.size());
+
+string s("C++ Primer"), s2 = s; // initialize s and s2 to "C++ Primer"
+s.insert(s.size(), " 4th Ed."); // s == "C++ Primer 4th Ed."
+s2.append(" 4th Ed."); // equivalent: appends " 4th Ed." to s2; s == s2
+```
+
+```cpp
+// Operations to Modify strings
+s.insert(pos, args) // Insert characters specified by args before pos. pos can be an index or an iterator. Versions taking an index return a reference to s; those taking an iterator return an iterator denoting the first inserted character.
+s.erase(pos, len) // Remove len characters starting at position pos. If len is omitted, removes characters from pos to the end of the s. Returns a reference to s.
+s.assign(args) // Replace characters in s according to args. Returns a reference to s.
+s.append(args) // Append args to s. Returns a reference to s.
+s.replace(range, args) // Remove range of characters from s and replace them with the characters formed by args. range is either an index and a length or a pair of iterators into s. Returns a reference to s.
+
+// args can be one of the following
+str // The string str.
+str, pos, len // Up to len characters from str starting at pos.
+cp, len // Up to len characters from the character array pointed to by cp.
+cp // Null-terminated array pointed to by pointer cp.
+n, c // n copies of character c.
+b, e // Characters in the range formed by iterators b and e.
+initializer list // Comma-separated list of characters enclosed in braces.
+```
+
+```cpp
+// equivalent way to replace "4th" by "5th"
+s.erase(11, 3); // s == "C++ Primer Ed."
+s.insert(11, "5th"); // s == "C++ Primer 5th Ed."
+// starting at position 11, erase three characters and then insert "5th"
+s2.replace(11, 3, "5th"); // equivalent: s == s2
+s.replace(11, 3, "Fifth"); // s == "C++ Primer Fifth Ed."
+```
+
+### string Search Operations
+
+```cpp
+// string Search Operations
+s.find(args) // Find the first occurrence of args in s.
+s.rfind(args) // Find the last occurrence of args in s.
+s.find_first_of(args) // Find the first occurrence of any character from args in s.
+s.find_last_of(args) // Find the last occurrence of any character from args in s.
+s.find_first_not_of(args) // Find the character in s that is not in args.
+s.find_last_not_of(args) // Find the last character in s that is not in args.
+
+// args must be one of
+c, pos // Look for the character c starting at position pos in s. pos defaults to 0.
+s2, pos // Look for the string s2 starting at position pos in s. pos defaults to 0.
+cp, pos // Look for the C-style null-terminated string pointed to by the pointer cp. Start looking at position pos in s. pos defaults to c.
+cp, pos, n // Look for the first n characters in the array pointed to by the pointer cp. Start looking at position pos in s. No default for pos or n.
+```
+
+The string search functions return string::size_type, which is an unsigned type. As a result, it is a bad idea to use an int, or other signed type, to hold the return from these functions.
+
+```cpp
+string name("AnnaBelle");
+auto pos1 = name.find("Anna"); // pos1 == 0
+
+string lowercase("annabelle");
+pos1 = lowercase.find("Anna"); // pos1 == npos
+
+string numbers("0123456789"), name("r2d2");
+// returns 1, i.e., the index of the first digit in name
+auto pos = name.find_first_of(numbers);
+
+string dept("03714p3");
+// returns 5, which is the index to the character 'p'
+auto pos = dept.find_first_not_of(numbers);
+
+
+// Specifying Where to Start the Search
+string::size_type pos = 0;
+// each iteration finds the next number in name
+while ((pos = name.find_first_of(numbers, pos))
+!= string::npos) {
+cout << "found number at index: " << pos
+<< " element is " << name[pos] << endl;
+++pos; // move to the next character
+}
+
+
+// Searching Backward
+string river("Mississippi");
+auto first_pos = river.find("is"); // returns 1
+auto last_pos = river.rfind("is"); // returns 4
+```
+
+### The compare Functions
+
+Like strcmp, s.compare returns zero or a positive or negative value depending on whether s is equal to, greater than, or less than the string formed from the given arguments.
+
+```cpp
+// Possible Arguments to s.compare
+s2 // Compare s to s2.
+pos1, n1, s2 // Compares n1 characters starting at pos1 from s to s2.
+pos1, n1, s2, pos2, n2 // Compares n1 characters starting at pos1 from s to the n2 characters starting at pos2 in s2.
+cp // Compares s to the null-terminated array pointed to by cp.
+pos1, n1, cp // Compares n1 characters starting at pos1 from s to cp
+pos1, n1, cp, n2 // Compares n1 characters starting at pos1 from s to n2 characters starting from the pointer cp.
+```
+
+### Numeric Conversions
+
+```cpp
+int i = 42;
+string s = to_string(i); // converts the int i to its character representation
+
+// Conversions between strings and Numbers
+to_string(val) // Overloaded functions returning the string representation of val. val can be any arithmetic type. There are versions of to_string for each floating-point type and integral type that is int or larger. Small integral types are promoted as usual.
+stoi(s, p, b) // Return the initial substring of s that has numeric content as an int, long, unsigned long, long long, unsigned long long, respectively. b indicates the numeric base to use for the conversion; b defaults to 10. p is a pointer to a size_t in which to put the index of the first nonnumeric character in s; p defaults to 0, in which case the function does not store the index.
+stol(s, p, b)
+stoul(s, p, b)
+stoll(s, p, b)
+stoull(s, p, b)
+stof(s, p) // Return the initial numeric substring in s as a float, double, or long double, respectively. p has the same behavior as described for the integer conversions.
+stod(s, p)
+stold(s, p)
+```
+
+```cpp
+string s2 = "pi = 3.14";
+// convert the first substring in s that starts with a digit, d = 3.14
+d = stod(s2.substr(s2.find_first_of("+-.0123456789")));
+```
+
 ## 9.6 Container Adaptors
+
+In addition to the sequential containers, the library defines three sequential container adaptors: stack, queue, and priority_queue. An adaptor is a general concept in the library. There are container, iterator, and function adaptors. Essentially, an adaptor is a mechanism for making one thing act like another. A container adaptor takes an existing container type and makes it act like a different type.
+
+```cpp
+// Operations and Types Common to the Container Adapters
+size_type // Type large enough to hold the size of the largest object of this type.
+value_type // Element type.
+container_type // Type of the underlying container on which the adapter is implemented.
+A a; // Create a new empty adaptor named a.
+A a(c); // Create a new adaptor named a with a copy of the container c.
+relational operators // Each adaptor supports all the relational operators: ==, !=, <, <=, >, >=. These operators return the result of comparing the underlying containers.
+a.empty() // false if a has any elements, true otherwise.
+a.size() // Number of elements in a.
+swap(a, b) // Swaps the contents of a and b; a and b must have the same type, including the type of the container on which they are implemented.
+a.swap(b)
+```
+
+### Defining an Adapter
+
+```cpp
+// assuming that deq is a deque<int>
+stack<int> stk(deq); // copies elements from deq into stk
+
+// By default both stack and queue are implemented in terms of deque, and a priority_queue is implemented on a vector. We can override the default container type by naming a sequential container as a second type argument when we create the adaptor:
+
+// empty stack implemented on top of vector
+stack<string, vector<string>> str_stk;
+// str_stk2 is implemented on top of vector and initially holds a copy of svec
+stack<string, vector<string>> str_stk2(svec);
+```
+
+### Stack Adapter
+
+```cpp
+
+#include <stack>
+stack<int> intStack; // empty stack
+// fill up the stack
+for (size_t ix = 0; ix != 10; ++ix)
+    intStack.push(ix); // intStackholds 0...9 inclusive
+while (!intStack.empty()) { // while there are still values in intStack
+    int value = intStack.top();
+    // code that uses value
+    intStack.pop(); // pop the top element, and repeat
+}
+
+
+// Stack Operations
+// Uses deque by default; can be implemented on a list or vector as well.
+s.pop() // Removes, but does not return, the top element from the stack.
+s.push(item) // Creates a new top element on the stack by copying or moving item, or by  constructing the element from args.
+s.emplace(args)
+s.top() // Returns, but does not remove, the top element on the stack.
+```
+
+### The Queue Adaptors
+
+```cpp
+#include <queue>
+
+// queue, priority_queue Operations
+// By default queue uses deque and priority_queue uses vector; queue can use a list or vector as well, priority_queue can use a deque
+q.pop() // Removes, but does not return, the front element or highest-priority
+q.front() // Returns, but does not remove, the front or back element of q. Valid only for queue.
+q.back()
+q.top() // Returns, but does not remove, the highest-priority element. Valid only for priority_queue.
+q.push(item) // Create an element with value item or constructed from args at the end of the queue or in its appropriate position in priority_queue.
+q.emplace(args)
+```
