@@ -138,11 +138,248 @@ if (!v.empty())
 ## 11.3 Operations on Associative Containers
 
 ```cpp
+// Associative Container Additional Type Aliases
+key_type // Type of the key for this container type
+mapped_type // Type associated with each key; map types only
+value_type // For sets, sameas the key_type; For maos, pair<const key_type, mapped_type>
+
+
+set<string>::value_type v1; // v1 is a string
+set<string>::key_type v2; // v2 is a string
+map>string, int>::value_type v3; // v3 is a pair<const string, int>
+map<string, int>::key_type v4; // v4 is a string
+map<string, int>::mapped_type v5; // v5 is an int
+```
+
+### Associative Container Iterators
+
+When we dereference an iterator, we get a reference to a value of the container’s value_type.
+
+```cpp
+// get an iterator to an element in word_count
+auto map_it = word_count.begin();
+// *map_it is a reference to a pair<const string, size_t> object
+cout << map_it->first; // prints the key for this element
+cout << " " << map_it->second; // prints the value of the element
+map_it->first = "new key"; // error: key is const
+++map_it->second; // ok: we can change the value through an iterator
+```
+
+It is essential to remember that the value_type of a map is a pair and we can change the value but not the key member of that pair.
+
+```cpp
+// Iterators for sets Are const
+set<int> iset = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+set<int>::iterator set_it = iset.begin();
+if (set_it != set.end()) {
+    *set_it = 42; // error: keys in a set are read-only
+    cout << *set_it << endl; // ok: can read the key
+}
+
+
+// Iterating across an Associative Container
+// get an iterator positioned on the first element
+auto map_it = word_count.cbegin();
+// compare the current iterator to the off-the-end iterator
+while (map_it != word_count.cend()) {
+    // dereference the iterator to print the element key--value pairs
+    cout << map_it->first << " occurs "
+         << map_it->second << " times" << endl;
+    ++map_it; // increment the iterator to denote the next element
+}
+```
+
+Associative Containers and Algorithms
+
+In general, we do not use the generic algorithms (Chapter 10) with the associative containers. The fact that the keys are const means that we cannot pass associative container iterators to algorithms that write to or reorder container elements. Such algorithms need to write to the elements. The elements in the set types are const, and those in maps are pairs whose first element is const.
+
+### Adding Elements
+
+```cpp
+vector<int> ivec = {2, 4, 6, 8, 2, 4, 6, 8}; // ivec has eight elements
+set<int> set2; // empty set
+set2.insert(ivec.cbegin(), ivec.cend()); // set2 has four elements
+set2.insert({1, 3, 5, 7, 1, 3, 5, 7}); // set2 has eight elements
+
+
+// Associative Container insert Operations
+c.insert(v) // v value_type object; args are used to construct an element.
+c.emplace(args) // For map and set, the element is inserted (or constructed) only if an element with the given key is not already in c. Returns a pair containing an iterator referring to the element with the given key and a bool indicating whether the element was inserted. For multimap and multiset, inserts (or constructs) the given element and returns an iterator to the new element.
+c.insert(b, e) // b and e are iterators that denote a range of c::value_type values;
+c.insert(il) // il is a braced list of such values. Returns void. For map and set, inserts the elements with keys that are not already in c. For multimap and multiset inserts, each element in the range.
+c.insert(p, v) // Like insert(v) (or emplace(args)), but uses iterator p as a hint for where to begin the search for where the new element should be stored. Returns an iterator to the element with the given key.
+c.emplace(p, args)
+```
+
+Adding Elements to a map
+
+```cpp
+// 
+// four ways to add word to word_count
+word_count.insert({word, 1});
+word_count.insert(make_pair(word, 1));
+word_count.insert(pair<string, size_t>(word, 1));
+word_count.insert(map<string, site_t>::value_type(word, 1));
 
 ```
 
-## 11.4 The Unordered Containers
+Testing the Return from insert
+
+For the containers that have unique keys, the versions of insert and emplace that add a single element return a pair that lets us know whether the insertion happened. The first member of the pair is an iterator to the element with the given key; the second is a bool indicating whether that element was inserted, or was already there. If the key is already in the container, then insert does nothing, and the bool portion of the return value is false. If the key isn’t present, then the element is inserted and the bool is true.
+
+```cpp
+// more verbose way to count number of times each word occurs in the input
+map<string, size_t> word_count; // empty map from string to size_t
+string word;
+while (cin >> word) {
+    // inserts an element with key equal to word and value 1;
+    // if word is already in word_count, insert does nothing
+    auto ret = word_count.insert({word, 1});
+    if (!ret.second) // word was already in word_count
+        ++ret.first->second;
+}
+```
+
+Unwinding the Syntax
+
+```cpp
+++((ret.first)->second); // equivalent expression
+
+
+pair<map<string, size_t>::iterator, bool> ret = word_count.insert(make_pair(word, 1));
+```
+
+Adding Elements to multiset or multimap
+
+```cpp
+multimap<string, string> authors;
+// adds the first element with the key Barth, John
+authors.insert({"Barth, John", "Sot-Weed Factor"});
+// ok: adds the second element with the key Barth, John
+authors.insert({"Barth, John", "Lost in the Funhouse"});
+```
+
+### Erasing Elements
+
+```cpp
+// Removing Elements from an Associative Container
+c.erase(k) // Removes every element with key k from c. Return size_type indicating the number of elements removed.
+c.erase(p) // Removes the element denoted by the iterator p from c. p must refer to an actual element in c; it must not be equal to c.end(). Returns an iterator to the element after p or c.end() if p denotes the last element in c.
+c.erase(b, e) // Removes the elements in the range denoted by the iterator pair b, e. Returns e.
+
+
+// erase on a key returns the number of elements removed
+if (word_count.erase(removal_word))
+    cout << "ok: " << removal_word << " removed\n";
+else cout << "oops: " << removal_word << " not found!\n";
+
+auto cnt = authors.erase("Barth, John");
+```
+
+### Subscripting a map
+
+```cpp
+// Subscript Operation for map and unordered_map
+c[k] // Returns the element with key k; if k is not in c, adds a new, value-initialized element with key k.
+c.at(k) // Checked access to the element with key k; throws an out_of_range exception if k is not in c.
+
+
+map<string, size_t> word_count; // empty map
+// insert a value-initialized element with key Anna; then assign 1 to its value
+word_count["Anna"] = 1;
+
+
+// Using the Value Returned from a Subscript Operation
+cout << word_count["Anna"]; // fetch the element indexed by Anna; prints 1
+++word_count["Anna"]; // fetch the element and add 1 to it
+cout << word_count["Anna"]; // fetch the element and print it; prints 2
+```
+
+### Accessing Elements
+
+```cpp
+// Operations to Find Elements in an Associative Container
+// lower_bound and upper_bound not valid for the unordered containers. 
+// Subscript and at operations only for map and unordered_map that are not const.
+c.find(k) // Returns an iterator to the (first) element with key k, or the off-the-end iterator if k is not in the container.
+c.count(k) // Returns the number of elements with key k. For the containers with unique keys, the result is always zero or one.
+c.lower_bound(k) // Returns an iterator to the first element with key not less than k.
+c.upper_bound(k) // Returns an iterator to the first element with key greater than k.
+c.equal_range(k) // Returns a pair of iterators denoting the elements with key k. If k is not present, both members are c.end().
+
+
+set<int> iset = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+iset.find(1); // returns an iterator that refers to the element with key == 1
+iset.find(11); // returns the iterator == iset.end()
+iset.count(1); // returns 1
+iset.count(11); // returns 0
+```
+
+Using find Instead of Subscript for maps
+
+For the map and unordered_map types, the subscript operator provides the simplest method of retrieving a value. However, as we’ve just seen, using a subscript has an important side effect: If that key is not already in the map, then subscript inserts an
+element with that key.
+
+```cpp
+if (word.find("foobar") == word_count.end())
+    cout << "foobar is not in the map" << endl;
+```
+
+Finding Elements in a multimap or multiset
+
+```cpp
+string search_item("Alain de Botton"); // author we'll look for
+auto entries = authors.count(search_item); // number of elements
+auto iter = authors.find(search_item); // first entry for this author
+// loop through the number of entries there are for this author
+while(entries) {
+    cout << iter->second << endl; // print each title
+    ++iter; // advance to the next title
+    --entries; // keep track of how many we've printed
+}
+```
+
+A Different, Iterator-Oriented Solution
+
+```cpp
+// definitions of authors and search_item as above
+// beg and end denote the range of elements for this author
+for (auto beg = authors.lower_bound(search_item), 
+          end = authors.upper_bound(search_item);
+     beg != end; ++beg)
+    cout << beg->second << endl; // print each title
+```
+
+The equal_range Functions
+
+```cpp
+// definitions of authors and search_item as above
+// pos holds iterators that denote the range of elements for this key
+for (auto pos = authors.equal_range(search_item);
+     pos.first != pos.second; ++pos.first)
+    cout << pos.first->second << endl; // print each title
+```
+
+### A Word Transformation Map
 
 ```cpp
 
+```
+
+
+## 11.4 The Unordered Containers
+
+The new standard defines four unordered associative containers. Rather than using a comparison operation to organize their elements, these containers use a hash function and the key type’s == operator.
+
+```cpp
+// Using an Unordered Container
+// count occurrences, but the words won't be in alphabetical order
+unordered_map<string, size_t> word_count;
+string word;
+while (cin >> word)
+    ++word_count[word]; // fetch and increment the counter for word
+for (const auto &w : word_count) // for each element in the map
+    // print the results
+    cout << w.first << " occurs " << w.second
+         << ((w.second > 1) ? " times" : " time") << endl;
 ```
