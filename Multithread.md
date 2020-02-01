@@ -369,4 +369,201 @@ fetch里面也大同小异，拿锁，确认条件，有东西可以拿的话就
 
 ### Read/Write Lock
 
-https://www.jyt0532.com/2017/01/02/c++-multi-thread-p4-2/
+How to make a multiple-read/single-write lock
+
+```cpp
+#include <iostream>
+#include <cstdlib>
+#include <thread>
+#include <mutex>
+#include <vector>
+
+using namespace std;
+
+class RWLock
+{
+public:
+    RWLock()
+        : shared()
+          , readerQ(), writerQ()
+          , active_readers(0), waiting_writers(0), active_writer(0){}
+
+    bool no_one_writing()
+    {
+        return active_readers > 0 || active_writers == 0;
+    }
+    bool no_one_read_and_no_one_write()
+    {
+        return active_readers == 0 && active_writers == 0;
+    }
+    void ReadLock()
+    {
+        std::unique_lock<std::mutex> lk(shared);
+        readerQ.wait(lk, bind(&RWLock::no_one_writing, this));
+        ++active_readers;
+        lk.unlock();
+    }
+    void ReadUnlock()
+    {
+        std::unique_lock<std::mutex> lk(shared);
+        --active_readers;
+        lk.unlock();
+        writerQ.notify_one();
+    }
+    void WriteLock()
+    {
+        std::unique_lock<std::mutex> lk(shared);
+        ++waiting_writers;
+        writerQ.wait(lk, bind(&RWLock::no_one_read_and_no_one_write, this));
+        --waiting_writers;
+        ++active_writers;
+        lk.unlock();
+    }
+    void WriteUnlock()
+    {
+        std::unique_lock<std::mutex> lk(shared);
+        --active_writers;
+        if (waiting_writers > 0)
+        {
+            writerQ.notify_one();
+        }
+        else
+        {
+            readerQ.notify_all();
+        }
+        lk.unlock();
+    }
+
+private:
+    std::mutex shared;
+    std::condition_variable readerQ;
+    std::condition_variable writerQ;
+    int active_readers;
+    int waiting_writers;
+    int active_writers;
+};
+
+int result = 0;
+void func(RWLock &rw, int i)
+{
+    if (i % 2 == 0)
+    {
+        rw.WriteLock();
+        result += 1;
+        rw.WriteUnlock();
+        rw.ReadLock();
+        rw.ReadUnlock();
+    }
+    else
+    {
+        rw.ReadLock();
+        rw.ReadUnlock();
+        rw.WriteLock();
+        result += 2;
+        rw.WriteUnlock();
+    }
+}
+void not_safe(int i)
+{
+    if (i % 2 == 0)
+    {
+        result += 1;
+    }
+    else
+    {
+        result += 2;
+    }
+}
+
+int main()
+{
+    RWLock rw;
+    std::vector<std::thread> threads;
+    for (int i = 0; i < 1000; i++)
+    {
+        threads.push_back(std::thread(func, ref(rw), i));
+        // threads.push_back(std::thread(not_safe, i));
+    }
+    for (int i = 0; i < threads.size(); i++)
+    {
+        threads[i].join();
+    }
+    cout << result << endl;
+    return 0;
+}
+```
+
+main里面initialize一个rw lock，把它丢给所有的thread。注意这里要用reference丢，这样所有thread才会用到同一个rw lock。
+
+func也简单，就是要改动result前call WriterLock，改完后call WirterUnlock。
+
+### Read/Write Lock Deep dive
+
+RWLock这个data structor里面有一个公用的mutex跟两个condition variable readerQ和writerQ。
+
+active_readers, waiting_writers, active_writers是记录现在的state的变量。
+
+基本上就是4个function，* ReadLock * ReadUnlock * WriteLock * WriteUnlock。
+
+*ReadLock*
+
+1. Acquire lock
+2. 确认condition，不该做事的话就进入CV wait；该做事就往下走，这里的写法只是比较fancy一点，但下面这两个写法是等价的：
+
+```cpp
+while (!if())
+{
+    wait(lk);
+}
+```
+
+```cpp
+wait(lk, f) // wait until f
+```
+
+3. 所以ReadLock要做事的condition就是没人在写或是有人在读，这个情况下就可以安心进去读。
+4. 把active_reader++
+5. 解锁（optional）
+
+*ReadUnlock*
+
+1. Acquire lock
+2. 改变shared data
+3. 解锁（optional）
+4. 去叫writer thread queue的一个writer thread起床
+
+*WriteLock*
+
+1. Acquire lock
+2. 让自己先去等waiting_writer++;
+3. 确认condition，不该做事的话就进CV wait，该做事就往下走，这里的condition是没有人读并且没有人写，那我就可以安心write
+4. --waiting_writers, ++active_writers, 让所有人知道有人在写
+5. 解锁（optional）
+
+*WriterUnlock*
+
+1. Acquire lock
+2. 改变shared data
+3. 确认现在的state，如果有writer在等，叫一个writer起床，如果没有人在等，去叫reader thread queue的所有reader thread起床，因为我们默许多个reader可以同时read，所以就是个部队起床的概念。
+4. 解锁（optional）
+
+Q1. 为什么ReadUnlock的时候是先解锁再notify，但WriteUnlock是先notify再解锁呢
+
+A1. 因为WriteUnlock在判断要notify谁的时候，需要access shared data，所以不能把锁放掉
+
+Q2. 既然你reader拿锁的条件其中一个是active_reader > 0，那如果reader thread很多的话，很有可能active_reader会一直不为0，writer可能永远拿不到锁怎么办
+
+A2. Smart! [RW Lock Priority_policies](https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock#Priority_policies) 本篇文章的实作是Read-preferring的RW Lock。每当有新的reader进来，他发现有人在read，那他也跟着read，都不管writer受得了受不了。
+
+### 所以可能writer会starve
+
+那Write-preferring的RW Lock怎么改呢？很简单，就改变reader做事的condition即可。
+
+```cpp
+bool no_one_writing()
+{
+    return waiting_writers == 0 && active_writers == 0;
+}
+```
+
+这样reader就会等到没有人写也没有人等着写的时候才会read，只要有writer来，writer之后的reader都要等。
