@@ -2,21 +2,21 @@
 
 ## Chapter 2 Variables and Basic Types
 
-2.1.1 long long Type
+✓ 2.1.1 long long Type
 
-2.2.1 List Initialization
+✓ 2.2.1 List Initialization
 
-2.3.2 nullptr Literal
+✓ 2.3.2 nullptr Literal
 
-2.4.4 constexpr Variables
+✓ 2.4.4 constexpr Variables
 
-2.5.1 Type Alias Declarations
+✓ 2.5.1 Type Alias Declarations
 
-2.5.2 The auto Type Specifier
+✓ 2.5.2 The auto Type Specifier
 
-2.5.3 The decltype Type Specifier
+✓ 2.5.3 The decltype Type Specifier
 
-2.6.1 In-Class Initializers
+✓ 2.6.1 In-Class Initializers
 
 ## Chapter 3 Strings, Vectors, and Arrays
 
