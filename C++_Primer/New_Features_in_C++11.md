@@ -20,19 +20,19 @@
 
 ## Chapter 3 Strings, Vectors, and Arrays
 
-3.2.2 Using auto or decltype for Type Abbreviation
+✓ 3.2.2 Using auto or decltype for Type Abbreviation
 
-3.2.3 Range for Statement
+✓ 3.2.3 Range for Statement
 
-3.3 Defining a vector of vectors
+✓ 3.3 Defining a vector of vectors
 
-3.3.1 List Initialization for vectors
+✓ 3.3.1 List Initialization for vectors
 
-3.4.1 Container cbegin and cend Functions
+✓ 3.4.1 Container cbegin and cend Functions
 
-3.5.3 Library begin and end Functions
+✓ 3.5.3 Library begin and end Functions
 
-3.6 Using auto or decltype to Simplify Declarations
+✓ 3.6 Using auto or decltype to Simplify Declarations
 
 ## Chapter 4 Expressions
 

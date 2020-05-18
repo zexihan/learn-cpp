@@ -15,7 +15,7 @@ char32_t // 32 bits
 short // 16 bits
 int // 16 bits
 long // 32 bits
-long long // 64 bits c++11
+long long // 64 bits [c++11]
 
 float // 6 significant digits
 double // 10 significant digits
@@ -94,7 +94,7 @@ std::cout << "a really, really long string literal "
 
 ### 2.2.1 Variable Definitions
 
-**List Initialization** c++11
+**List Initialization** [c++11]
 
 ```cpp
 int units_sold = 0;
@@ -178,7 +178,7 @@ cout << *p;
 A null pointer does not point to any object. Code can check whether a pointer is null before attempting to use it.
 
 ```cpp
-int *p1 = nullptr; // equivalent to int *p1 = 0; c++11
+int *p1 = nullptr; // equivalent to int *p1 = 0; [c++11]
 int *p2 = 0;
 // must #include cstdlib
 int *p3 = NULL;
@@ -287,7 +287,7 @@ int staff_size = 27; // staff_size is not a constant expression
 const int sz = get_size(); // sz is not a constant expression
 ```
 
-**c++11 constexpr Variables:** Under the new standard, we can ask the compiler to verify that a variable is a constant expression by declaring the variable in a constexpr declaration. Variables declared as constexpr are implicitly const and must be initialized by constant expressions:
+**[c++11] constexpr Variables:** Under the new standard, we can ask the compiler to verify that a variable is a constant expression by declaring the variable in a constexpr declaration. Variables declared as constexpr are implicitly const and must be initialized by constant expressions:
 
 ```cpp
 constexpr int mf = 20; // 20 is a constant expression
@@ -330,7 +330,7 @@ typedef double wages; // wages is a synonym for double
 typedef wages base, *p; // base is a synonym for double, p for double*
 ```
 
-c++11 introduced a second way to define a type alias, via a alias declaration:
+[c++11] introduced a second way to define a type alias, via a alias declaration:
 
 ```cpp
 // alias declaration
@@ -351,7 +351,7 @@ const pstring cstr = 0; // cstr is a constant pointer to char
 const pstring *ps; // ps is a pointer to a constant pointer to char
 ```
 
-### 2.5.2 The auto Type Specifier c++11
+### 2.5.2 The auto Type Specifier [c++11]
 
 ```cpp
 // the type of item is deduced from the type of the result of addingg val1 and val2
@@ -385,7 +385,7 @@ auto &m = ci, *p = &ci; // m is a const int&; p is a pointer to const int
 auto &n = i, *p2 = &ci;
 ```
 
-### 2.5.3 The decltype Type Specifier c++11
+### 2.5.3 The decltype Type Specifier [c++11]
 
 ```cpp
 decltype(f()) sum = x; // sum has whatever type f returns
@@ -428,7 +428,7 @@ Sales_data accum, trans, *salesptr;
 
 **Class Data Members**
 
-c++11 When we create objects, the in-class initializers will be used to initialize the data members. Members without an initializer are default initialized.
+[c++11] When we create objects, the in-class initializers will be used to initialize the data members. Members without an initializer are default initialized.
 
 In-class initializers must either be enclosed inside curly breaces or follow an = sign. We may not specify an in-class initializer inside parentheses.
 
