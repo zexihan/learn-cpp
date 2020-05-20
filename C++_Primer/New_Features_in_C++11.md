@@ -36,27 +36,27 @@
 
 ## Chapter 4 Expressions
 
-4.2 Rounding Rules for Division
+✓ 4.2 Rounding Rules for Division
 
-4.4 Assignment from a Braced List of Values
+✓ 4.4 Assignment from a Braced List of Values
 
-4.9 sizeof Applied to a Class Member
+✓ 4.9 sizeof Applied to a Class Member
 
 ## Chapter 5 Statements
 
-5.4.3 Range for Statement
+✓ 5.4.3 Range for Statement
 
 ## Chapter 6 Functions
 
-6.2.6 Library initializer_list Class
+✓ 6.2.6 Library initializer_list Class
 
-6.3.2 List Initializing a Return Value
+✓ 6.3.2 List Initializing a Return Value
 
-6.3.3 Declaring a Trailing Return Type
+✓ 6.3.3 Declaring a Trailing Return Type
 
-6.3.3 Using decltype to Simplify Return Type Declarations
+✓ 6.3.3 Using decltype to Simplify Return Type Declarations
 
-6.5.2 constexpr Functions
+✓ 6.5.2 constexpr Functions
 
 ## Chapter 7 Classes
 

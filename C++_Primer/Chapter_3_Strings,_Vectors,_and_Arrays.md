@@ -2,7 +2,7 @@
 
 ## 3.1 Namespace using Declarations
 
-Scope operator (::) says that the compiler should look in the scope of the left-hand operand for the name of the right-hand operand.
+Scope operator (`::`) says that the compiler should look in the scope of the left-hand operand for the name of the right-hand operand.
 
 **A Separate using Declaration Is Required for Each Name**
 
@@ -23,14 +23,14 @@ int main() {
 
 **Headers Should Not Include using Declarations**
 
-## 3.2 Library string Type
+## 3.2 Library `string` Type
 
 ```cpp
 #include <string>
 using std::string;
 ```
 
-### 3.2.1 Defining and Initializing strings
+### 3.2.1 Defining and Initializing `string`s
 
 ```cpp
 string s1;
@@ -39,7 +39,7 @@ string s3 = "hiya";
 string s4(10, 'c);
 ```
 
-### 3.2.2 Operations on strings
+### 3.2.2 Operations on `string`s
 
 ```cpp
 os << s
@@ -55,7 +55,7 @@ s1 != s2
 <, <=, >, >=
 ```
 
-**The string::size_type** Type
+**The `string::size_type` Type**
 
 [c++11] size returns a string::size_type value. Although we don't know the precise type of string::size_type, we do know that it is an unsigned type big enough to hold the size of any string. Any variable used to store the result from the string size operation should be of type string::size_type.
 
@@ -63,7 +63,7 @@ s1 != s2
 auto len = line.size(); // len has type string::size_type
 ```
 
-### 3.2.3 Dealing with the Characters in a string
+### 3.2.3 Dealing with the Characters in a `string`
 
 ```cpp
 #include <cctype>
@@ -78,7 +78,7 @@ tolower(c)
 toupper(c)
 ```
 
-**[c++11] Processing Every Character? Use Range-Based for**
+**[c++11] Processing Every Character? Use Range-Based `for`**
 
 ```cpp
 string str("some string");
@@ -86,7 +86,7 @@ for (auto c : str)
     cout << c << endl;
 ```
 
-**Using a Range for to Change the Characters in a string**
+**Using a Range for to Change the Characters in a `string`**
 
 ```cpp
 string s("Hello World!!!");
@@ -103,7 +103,7 @@ for (decltype(s.size()) index = 0;
         s[index] = toupper(s[index]);
 ```
 
-## 3.3 Library vector Type
+## 3.3 Library `vector` Type
 
 ```cpp
 #include <vector>
@@ -114,7 +114,7 @@ vector<Sales_item> Sales_vec;
 vector<vector<string>> file;
 ```
 
-### 3.3.1 Defining and Initializing vectors
+### 3.3.1 Defining and Initializing `vector`s
 
 ```cpp
 vector<T> v1
@@ -126,7 +126,7 @@ vector<T> v5{a, b, c...}
 vector<T> v5 = {a, b, c...}
 ```
 
-**[c++11] List Initializing a vector**
+**[c++11] List Initializing a `vector`**
 
 ```cpp
 vector<string> articles = {"a", "an", "the"};
@@ -143,9 +143,9 @@ for (int i = 0; i != 100; ++i)
     v2.push_back(i);
 ```
 
-**Key Concept: vectors Grow Efficiently**
+**Key Concept: `vector`s Grow Efficiently**
 
-### 3.3.3 Other vector Operations
+### 3.3.3 Other `vector` Operations
 
 ```cpp
 v.empty()
@@ -159,15 +159,15 @@ v1 != v2
 <, <=, >, >=
 ```
 
-## 3.4 Introducing Iterators
+## 3.4 Introducing `Iterator`s
 
-### 3.4.1 Using Iterators
+### 3.4.1 Using `Iterator`s
 
 ```cpp
 auto b = v.begin(), e = v.end();
 ```
 
-**Iterator Operations**
+**`Iterator` Operations**
 
 ```cpp
 *iter
@@ -187,14 +187,14 @@ if (s.begin() != s.end()) {
 }
 ```
 
-**Moving Iterators from One Element to Another**
+**Moving `Iterator`s from One Element to Another**
 
 ```cpp
 for (auto it = s.begin(); it != s.end() ** !isspace(*it); ++it)
     *it = toupper(*it);
 ```
 
-**Iterator Types**
+**`Iterator` Types**
 
 ```cpp
 vector<int>::iterator it;
@@ -218,7 +218,7 @@ auto it2 = cv.begin(); // it2 has type vector<int>::const_iterator
 auto it3 = v.cbegin(); // it3 has type vector<int>::const_iterator
 ```
 
-### 3.4.2 Iterator Arithmetic
+### 3.4.2 `Iterator` Arithmetic
 
 ```cpp
 iter + n

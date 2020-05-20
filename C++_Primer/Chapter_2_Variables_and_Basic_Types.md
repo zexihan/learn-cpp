@@ -36,7 +36,7 @@ unsigned char // 8-bit, holds values from 0 to 255 inclusive
 
 ### 2.1.2 Type Conversions
 
-Don't mix siugned and unsigned types.
+Don't mix signed and unsigned types.
 
 ### 2.1.3 Literals
 
@@ -71,7 +71,7 @@ f or F // float
 l or L // long double
 ```
 
-Using scientific notation, the exponent is indicated by either E or e.
+Using scientific notation, the exponent is indicated by either `E` or `e`.
 
 By default, floating-point literals have type double.
 
@@ -82,7 +82,7 @@ By default, floating-point literals have type double.
 "Hello World!" // string literal
 ```
 
-The type of a string literal is array of constant chars. The compiler appends a null character('\0') to every string literal.
+The type of a `string` literal is array of constant `char`s. The compiler appends a null character('\0') to every `string` literal.
 
 ```cpp
 // multiline string literal
@@ -184,7 +184,7 @@ int *p2 = 0;
 int *p3 = NULL;
 ```
 
-**void\* Pointers**
+**`void*` Pointers**
 
 A void* pointer holds an address, but the type of the object at that address is unknown.
 
@@ -194,9 +194,9 @@ void *pv = &obj;
 pv = pd;
 ```
 
-There are only a limited number of things we can do with a void* pointer: We can compare it to another pointer, we can pass it to or return it from a function, and we can assign it to another void* pointer. We cannot use a void* to operate on the object it addresses--we don't know that object's type, and the type determines what operations we can perform on the object.
+There are only a limited number of things we can do with a `void*` pointer: We can compare it to another pointer, we can pass it to or return it from a function, and we can assign it to another `void*` pointer. We cannot use a `void*` to operate on the object it addresses--we don't know that object's type, and the type determines what operations we can perform on the object.
 
-## 2.4 const Qualifier
+## 2.4 `const` Qualifier
 
 ```cpp
 const int bufSize = 512; // input buffer size
@@ -218,7 +218,7 @@ extern const int bufSize = fcn();
 extern const int bufSize; // same bufSize as defined in file_1.cc
 ```
 
-### 2.4.1 References to const
+### 2.4.1 References to `const`
 
 As with any other object, we can bind a reference to an object of a const type. To do so we use a reference to const, which is a reference that refers to a const type. Unlike an ordinary reference, a reference to const cannot be used to change the object to which the reference is bound:
 
@@ -246,9 +246,9 @@ r1 = 0; // r1 is not const; i is now 0
 r2 = 0; // error: r2 is a reference to const
 ```
 
-### 2.4.2 Pointers and const
+### 2.4.2 Pointers and `const`
 
-As with references, we can define pointers that point to either const or nonconst types. Like a reference to const, a pointer to const (§ 2.4.1, p. 61) may not be used to change the object to which the pointer points. We may store the address of a const object only in a pointer to const:
+As with references, we can define pointers that point to either `const` or non`const` types. Like a reference to `const`, a pointer to `const` (§ 2.4.1, p. 61) may not be used to change the object to which the pointer points. We may store the address of a `const` object only in a pointer to `const`:
 
 ```cpp
 const double pi = 3.14; // pi is const; its value may not be changed
@@ -262,7 +262,7 @@ cptr = &dval; // ok: but can't change dval through cptr
 
 ### 2.4.3 Top-Level const
 
-We use the term top-level const to indicate that the pointer itself is a const. When a pointer can point to a const object, we refer to that const as a low-level const.
+We use the term **top-level** `const` to indicate that the pointer itself is a const. When a pointer can point to a const object, we refer to that const as a **low-level** `const`.
 
 ```cpp
 int i = 0;
@@ -276,7 +276,7 @@ i = ci; // ok: copying the value of ci; top-level const in ci is ignored
 p2 = p3; // ok: pointed-to type matches; top-level const in p3 is ignored
 ```
 
-### 2.4.4 constexpr and Constant Expressions
+### 2.4.4 `constexpr` and Constant Expressions
 
 A constant expression is an expression whose value cannot change and that can be evaluated at **compile time**. A **literal** is a constant expression. A const object that is initialized from a constant expression is also a constant expression. 
 
@@ -287,7 +287,7 @@ int staff_size = 27; // staff_size is not a constant expression
 const int sz = get_size(); // sz is not a constant expression
 ```
 
-**[c++11] constexpr Variables:** Under the new standard, we can ask the compiler to verify that a variable is a constant expression by declaring the variable in a constexpr declaration. Variables declared as constexpr are implicitly const and must be initialized by constant expressions:
+**[c++11] constexpr Variables:** Under the new standard, we can ask the compiler to verify that a variable is a constant expression by declaring the variable in a `constexpr` declaration. Variables declared as `constexpr` are implicitly `const` and must be initialized by constant expressions:
 
 ```cpp
 constexpr int mf = 20; // 20 is a constant expression
@@ -297,7 +297,7 @@ constexpr int sz = size(); // ok only if size is a constexpr function
 
 Generally, it is a good idea to use constexpr for variables that you intend to use as constant expressions.
 
-**Pointers and constexpr** 
+**Pointers and `constexpr`** 
 
 It is important to understand that when we define a pointer in a constexpr declaration, the constexpr specifier applies to the pointer, not the type to which the pointer points:
 
@@ -361,7 +361,7 @@ auto i = 0, *p = &i; // ok: i is int and p is a pointer to int
 auto sz = 0, pi = 3.14; // error: inconsistent types for sz and pi
 ```
 
-**Compound Types, const, and auto**
+**Compound Types, `const`, and `auto`**
 
 ```cpp
 int i = 0, &r = i;
@@ -411,7 +411,7 @@ decltype(i) e; // ok: e is an (uninitialized) int
 
 ## 2.6 Defining Our Own Data Structures
 
-### 2.6.1 Defining the Sales_data Type
+### 2.6.1 Defining the `Sales_data` Type
 
 ```cpp
 struct Sales_data {
@@ -430,9 +430,9 @@ Sales_data accum, trans, *salesptr;
 
 [c++11] When we create objects, the in-class initializers will be used to initialize the data members. Members without an initializer are default initialized.
 
-In-class initializers must either be enclosed inside curly breaces or follow an = sign. We may not specify an in-class initializer inside parentheses.
+In-class initializers must either be enclosed inside curly breaces or follow an `=` sign. We may not specify an in-class initializer inside parentheses.
 
-### 2.6.2 Using the Sales_data Class
+### 2.6.2 Using the `Sales_data` Class
 
 ```cpp
 #include <iostream>

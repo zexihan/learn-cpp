@@ -1,0 +1,117 @@
+# Chapter 6 Functions
+
+## 6.2 Argument Passing
+
+### 6.2.5 `main`: Handling Command-Line Options
+
+```cpp
+prog -d -o ofile data0
+int main(int argc, char *argv[]) { ... }
+
+argc = 5;
+argv[0] = "prog"; // or argv[0] might point to an empty string
+argv[1] = "-d";
+argv[2] = "-o";
+argv[3] = "ofile";
+argv[4] = "data0";
+argv[5] = 0;
+```
+
+### 6.2.6 Functions with Varying Parameters
+
+**`initializer_list` Parameters**
+
+[c++11] We can write a fucntion that takes an unknown number of arguments of a single type by using an `initializer_list` parameter. An `initializer_list` is a library type that represents an array of values of the specified type.
+
+```cpp
+#include <initializer_list>
+
+// Operations on initializer_lists
+initializer_list<T> lst;
+initializer_list<T> lst{a, b, c...};
+lst2(lst)
+lst2 = lst
+lst.size()
+lst.begin()
+lst.end()
+```
+
+Unlike `vector`, the elements in an `initializer_list` are always `const` values; there is no way to change the value of an element in an `initializer_list`.
+
+```cpp
+void error_msg(initializer_list<string> il) {
+    for (auto beg = il.begin(); beg != il.end(); ++beg)
+        cout << *beg << " ";
+    cout << endl;
+}
+
+// expected, actual are strings
+if (expected != actual)
+    error_msg({"functionX", expected, actual});
+else
+    error_msg({"functionX", "okay"});
+```
+
+## 6.3 Return Types and the `return` Statement
+
+### 6.3.2 Functions That Return a Value
+
+**List Initializing the Return Value**
+
+[c++11] Under the new standard, functions can return a braced list of values.
+
+```cpp
+vector<string> process() {
+    // ...
+    // expected and actual are strings
+    if (expected.empty())
+        return {}; // return an empty vector
+    else if (expected == actual)
+        return {"functionX", "okay"}; // return list-initialized vector
+    else
+        return {"functionX", expected, actual};
+}
+```
+
+### 6.3.3 Returning a Pointer to an Array
+
+Because we cannot copy an array, a function cannot return an array. However, a function can return a pointer or a reference to an array.
+
+**Declaring a Function That Returns a Pointer to an Array**
+
+```cpp
+Type (*function(parameter_list))[dimension]
+int (*func(int i))[10];
+```
+
+**Using a Trailing Return Type**
+
+[c++11] Under the new standard, another way to simplify the declaration of `func` is by using a trailing return type. 
+
+```cpp
+// fcn takes an int argument and returns a pointer to an array of ten ints
+auto func(int i) -> int(*)[10];
+```
+
+**Using decltype [c++11]**
+
+```cpp
+int odd[] = {1,3,5,7,9};
+int even[] = {0,2,4,6,8};
+//returns a pointer to an array of five int elements
+decltype(odd) *arrPtr(int i) {
+    return (i % 2) ?&odd : &even; // return a pointer to the array
+}
+```
+
+## 6.4 Overloaded Functions
+
+Functions that have the same name but different parameter lists and that appear in the same scope are overloaded.
+
+```cpp
+void print(const char *cp);
+void print(const int *beg, const int *end);
+void print(const int ia[], size_t size);
+```
+
+## 6.5 Features for Specialized Uses
