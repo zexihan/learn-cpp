@@ -115,3 +115,104 @@ void print(const int ia[], size_t size);
 ```
 
 ## 6.5 Features for Specialized Uses
+
+### 6.5.1 Default Arguments
+
+```cpp
+typedef string::size_type sz;
+string screen(sz ht = 24, sz wid = 80, char backgrnd = ' ')
+```
+
+**Calling Functions with Default Arguments**
+
+```cpp
+string window;
+window = screen(); // screen(24, 90, ' ')
+window = screen(66); // screen(66, 80, ' ')
+window = screen(66, 256); // screen(66, 256, ' ')
+window = screen(66, 256, '#') // screen(66, 256, '#')
+
+window = screen(, , '?'); // error: can omit only trailing arguments
+```
+
+### 6.5.2 Inline and `constexpr` Functions
+
+**`inline` Functions Avoid Function Call Overhead**
+
+A function specified as inline (usually) is expanded "in line" at each call. The run-time overhead of making `shorterString` a function is thus removed. The `inline` mechanism is meant to optimize small, straight-line functions that are called frequently.
+
+```cpp
+cout << shorterString(s1, s2) << endl;
+
+inline const string & shorterString(const string &s1, const string &s2) {
+    return s1.size() <= s2.size() ? s1 : s2;
+}
+```
+
+**`constexpr` Functions**
+
+[c++11] A `constexpr` function is a function that can be used in a constant expression. The `return` type and the type of each parameter in a must be a literal type, and the function body must contain exactly one `return` statement.
+
+```cpp
+constexpr int new_sz() { return 42; }
+constexpr int foo = new_sz(); // ok: foo is a constant expression
+```
+
+## 6.7 Pointers to Functions
+
+```cpp
+// compares lengths of two strings
+bool lengthCompare(const string &, const string &);
+// pf points to a function returning bool that takes two const string references
+bool (*pf)(const string &, const string &);
+```
+
+**Using Function Pointers**
+
+```cpp
+pf = lengthCompare; // pf now points to the function names lengthCompare
+pf = &lengthCompare; // equivalent assignment: address-of operator is optional
+```
+
+```cpp
+bool b1 = pf("hello", "goodbye"); // calls lengthCompare
+bool b2 = (*pf)("hello", "goodbye"); // equivalent call
+bool b3 = lengthCompare("hello", "goodbye"); // equivalent call
+```
+
+**Function Pointer Parameters**
+
+```cpp
+void useBigger(const string &s1, const string &s2, 
+               bool pf(const string &, const string &));
+void useBigger(const string &s1, const string &s2, 
+               bool (*pf)(const string &, const string &));
+```
+
+**Returning a Pointer to Function**
+
+```cpp
+using F = int(int*, int); // F is a function type, not a pointer
+using PF = int(*)(int*, int); // PF is a pointer type
+```
+
+```cpp
+PF f1(int); // ok: PF is a pointer to function; f1 returns a pointer to function
+F f1(int); // error: F is a function type; f1 can't return a function
+F *f1(int); // ok: explicitly specify that the return type is a pointer to function
+
+int (*f1(int))(int*, int); // ok
+
+auto f1(int) -> int (*)(int*, int); // using a trailing return
+```
+
+**Using `auto` or `decltype` from Function Pointer Types**
+
+```cpp
+string::size_type sumLength(const string&, const string&);
+string::size_type largerLength(const string&, const string&);
+
+// depending on the value of its string parameter
+// getFcn returns a pointer to sumLength or to largerLength
+decltype(sumLength) *getFcn(const string &);
+```
