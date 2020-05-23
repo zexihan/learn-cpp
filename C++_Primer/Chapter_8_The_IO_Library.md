@@ -94,7 +94,7 @@ ofstream out3("file1", ofstream::out | ofstream::trunc);
 
 // to preserve the file's contents, we must explicitly specify app mode
 ofstream app("file2", ofstream::app); // out is implicit
-ofstream app2("file2", ofstream::out | ofstream::app)
+ofstream app2("file2", ofstream::out | ofstream::app);
 ```
 
 ## 8.3 `string` Streams
