@@ -1,10 +1,11 @@
 # Chapter 17 Specialized Library Facilities
 
-## 17.1 The tuple Type
+## 17.1 The `tuple` Type [c++11]
+
+Operations on `tuple`s
 
 ```cpp
 #include <tuple>
-// Operations on tuples
 tuple<T1, T2, ..., Tn> t; // t is a tuple with as many members as there are types T1...Tn. The members are value initialized
 tuple<T1, T2, ..., Tn> t(v1, v2, ..., vn); // t is a tuple with types T1...Tn in which each member is initialized from the corresponding initializer, vi. This constructor is explicit
 make_tuple(v1, v2, ..., vn) // Returns a tuple initialized from the given initializers. The type of the tuple is inferred from the types of the initializers
@@ -16,7 +17,7 @@ tuple_size<tupleType>::value // A class template that can be instantiated by a t
 tuple_element<i, tupleType>::type // A class template that can be instantiated by an integral constant and a tuple type and has a public member named type that is the type of the specified members in the specified tuple type
 ```
 
-### Defining and Initializing tuples
+### 17.1.1 Defining and Initializing `tuple`s
 
 ```cpp
 tuple<size_t, size_t, size_t> threeD; // all three members set to 0
@@ -28,9 +29,11 @@ tuple<size_t, size_t, size_t> threeD{1,2,3}; // ok
 
 // tuple that represents a bookstore transaction: ISBN, count, price per book
 auto item = make_tuple("0-999-78345-X", 3, 20.00);
+```
 
+**Accessing the Members of a `tuple`**
 
-// Accessing the Members of a tuple
+```cpp
 auto book = get<0>(item); // returns the first member of item
 auto cnt = get<1>(item); // returns the second member of item
 auto price = get<2>(item)/cnt; // returns the last member of item
@@ -41,9 +44,11 @@ typedef decltype(item) trans; // trans is the type of item
 size_t sz = tuple_size<trans>::value; // returns 3
 // cnt has the same type as the second member in item
 tuple_element<1, trans>::type cnt = get<1>(item); // cnt is an int
+```
 
+**Relational and Equality Operators**
 
-// Relational and Equality Operators
+```cpp
 tuple<string, string> duo("1", "2");
 tuple<size_t, size_t> twoD(1, 2);
 bool b = (duo == twoD); // error: can't compare a size_t and a string
@@ -53,12 +58,16 @@ tuple<size_t, size_t> origin(0, 0);
 b = (origin < twoD); // ok: b is true
 ```
 
-### Using a tuple to Return Multiple Values
+### 17.1.2 Using a `tuple` to Return Multiple Values
 
 ```cpp
 // each element in files holds the transactions for a particular store
 vector<vector<Sales_data>> files;
+```
 
+**A Function That Returns a `tuple`**
+
+```cpp
 // matches has three members: an index of a store and iterators into that store's vector
 typedef tuple<vector<Sales_data>::size_type,
               vector<Sales_data>::const_iterator,
@@ -86,7 +95,7 @@ findBook(const vector<vector<Sales_data>> &files,
 }
 ```
 
-### Using a tuple Returned by a Function
+**Using a `tuple` Returned by a Function**
 
 ```cpp
 void reportResults(istream &in, ostream &os, const vector<vector<Sales_data>> &files)
@@ -108,7 +117,7 @@ void reportResults(istream &in, ostream &os, const vector<vector<Sales_data>> &f
 }
 ```
 
-## 17.2 The bitset Type
+## 17.2 The `bitset` Type
 
 ```cpp
 
@@ -116,8 +125,9 @@ void reportResults(istream &in, ostream &os, const vector<vector<Sales_data>> &f
 
 ## 17.3 Regular Expressions
 
+Regular Expression Library Components
+
 ```cpp
-// Regular Expression Library Components
 regex // Class that represents a regular expression
 regex_match // Matches a sequence of characters against a regular expression
 regex_search // Finds the first subsequence that matches the regular expression
@@ -125,13 +135,16 @@ regex_replace // Replaces a regular expression using a given format
 sregex_iterator // Iterator adapter that calls regex_search to iterate through the matches in a string
 smatch // Container class that holds the results of searching a string
 ssub_match // Results for a matched subexpression in a string
+```
 
-// Arguments to regex_search and regex_match
+Arguments to `regex_search` and `regex_match`
+
+```cpp
 (seq, m, r, mft) // Look for the regular expression in the regex object r in the character sequence seq. seq can be a string, a pair of iterators denoting a range, or a pointer to a null-terminated character array. m is a match object, which is used to hold details about the match. m and seq must have compatible types. mft is an optional regex_constants::match_flag_type value. 
 (seq, r, mft)
 ```
 
-### Using the Regular Expression Library
+### 17.3.1 Using the Regular Expression Library
 
 ```cpp
 #include <regex>
@@ -150,23 +163,27 @@ if (regex_search(test_str, results, r)) // if there is a match
 
 ## 17.4 Random Numbers
 
+[c++11] Random Number Library Components
+
 ```cpp
-// Random Number Library Components
 Engine // Types that generate a sequence of random unsigned integers
 Distribution // Types that use an engine to return numbers according to a particular probability distribution
 ```
 
-C++ programs should not use the library rand function. Instead, they should use the default_random_engine along with an appropriate distribution object.
+C++ programs should not use the library `rand` function. Instead, they should use the `default_random_engine` along with an appropriate distribution object.
 
-### Random-Number Engines and Distribution
+### 17.4.1 Random-Number Engines and Distribution
 
 ```cpp
 #include <random>
 default_random_engine e;
 for (size_t i = 0; i < 10; ++i)
     cout << e() << " ";
+```
 
-// Random Number Engine Operations
+Random Number Engine Operations
+
+```cpp
 Engine e; // Default constructor; uses the default seed for the engine type
 Engine e(s); // Uses the integral value s as the seed
 e.seed(s) // Reset the state of the engine using the seed s
@@ -174,8 +191,11 @@ e.min() // The smallest and largest numbers this generator will generate
 e.max()
 Engine::result_type // The unsigned integral type this engine generates
 e.discard(u) // Advance the engine by u steps; u has type unsigned long long
+```
 
-// Distribution Types and Engines
+**Distribution Types and Engines**
+
+```cpp
 // uniformly distributed from 0 to 9 inclusive
 uniform_int_distribution<unsigned> u(0,9);
 default_random_engine e; // generates unsigned random integers
@@ -187,13 +207,15 @@ for (size_t i = 0; i < 10; ++i)
 
 The distribution types define a call operator that takes a random-number engine as its argument. The distribution object uses its engine argument to produce random numbers that the distribution object maps to the specified distribution.
 
+**Comparing Random Engines and the `rand` Function**
+
 ```cpp
-// Comparing Random Engines and the rand Function
 cout << "min: " << e.min() << " max: " << e.max() << endl;
 ```
 
+**Engines Generate a Sequence of Numbers**
+
 ```cpp
-// Engines Generate a Sequence of Numbers
 // almost surely the wrong way to generate a vector of random integers
 // output from this function will be the same 100 numbers on every call!
 vector<unsigned> bad_randVec()
@@ -227,12 +249,11 @@ vector<unsigned> good_randVec()
 }
 ```
 
-Because e and u are static, they will hold their state across calls to the function.
-The first call will use the first 100 random numbers from the sequence u(e)
-generates, the second call will get the next 100, and so on.
+Because `e` and `u` are `static`, they will hold their state across calls to the function. The first call will use the first 100 random numbers from the sequence `u(e)` generates, the second call will get the next 100, and so on.
+
+**Seeding a Generator**
 
 ```cpp
-// Seeding a Generator
 default_random_engine e1; // uses the default seed
 default_random_engine e2(2147483646); // use the given seed value
 // e3 and e4 will generate the same sequence because they use the same seed
@@ -249,21 +270,28 @@ for (size_t i = 0; i != 100; ++i) {
 default_random_engine e1(time(0)); // a somewhat random seed
 ```
 
-### Other Kinds of Distributions
+### 17.4.2 Other Kinds of Distributions
+
+**Generating Random Real Numbers**
 
 ```cpp
-// Generating Random Real Numbers
 default_random_engine e; // generates unsigned random integers
 // uniformly distributed from 0 to 1 inclusive
 uniform_real_distribution<double> u(0,1);
 for (size_t i = 0; i < 10; ++i)
 cout << u(e) << " ";
+```
 
-// Using the Distribution’s Default Result Type
+**Using the Distribution’s Default Result Type**
+
+```cpp
 // empty <> signify we want to use the default result type
 uniform_real_distribution<> u(0,1); // generates double by default
+```
 
-// Generating Numbers That Are Not Uniformly Distributed
+**Generating Numbers That Are Not Uniformly Distributed**
+
+```cpp
 default_random_engine e; // generates random integers
 normal_distribution<> n(4,1.5); // mean 4, standard deviation 1.5
 vector<unsigned> vals(9); // nine elements each 0
@@ -274,8 +302,11 @@ for (size_t i = 0; i != 200; ++i) {
 }
 for (size_t j = 0; j != vals.size(); ++j)
     cout << j << ": " << string(vals[j], '*') << endl;
+```
 
-// The bernoulli_distribution Class
+**The `bernoulli_distribution` Class**
+
+```cpp
 string resp;
 default_random_engine e; // e has state, so it must be outside the loop!
 bernoulli_distribution b; // 50/50 odds by default
@@ -292,6 +323,20 @@ do {
 
 ## 17.5 The IO Library Revisited
 
-```cpp
+### 17.5.1 Formatted Input and Output
 
+**Specifying How Much Precision to Print**
+
+```cpp
+// cout.precision reports the current precision value
+cout << "Precision: " << cout.precision()
+     << ", Value: " << sqrt(2.0) << endl;
+// cout.precision(12) asks that 12 digits of precision be printed
+cout.precision(12);
+cout << "Precision: " << cout.precision()
+     << ", Value: " << sqrt(2.0) << endl;
+// alternative way to set precision using the setprecision manipulator
+cout << setprecision(3);
+cout << "Precision: " << cout.precision()
+     << ", Value: " << sqrt(2.0) << endl;
 ```
